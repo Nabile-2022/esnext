@@ -79,3 +79,63 @@ class FreeTrip extends Trip
 const freeTrip = new FreeTrip("nantes", "Nantes", "img/nantes.jpg");
 console.log(freeTrip);
 console.log(freeTrip.toString());
+
+class TripService
+{
+    constructor()
+    {
+        this.trips = new Set();
+        this.trips.add(new Trip('paris', 'Paris', 'img/paris.jpg'));
+        this.trips.add(new Trip('nantes', 'Nantes', 'img/nantes.jpg'));
+        this.trips.add(new Trip('rio-de-janeiro', 'Rio de Janeiro', 'img/rio-de-janeiro.jpg'));
+    }
+
+    findByName(tripName)
+    {
+        return new Promise((resolve, reject) =>
+        {
+            setTimeout(() =>
+            {
+                for (const trip of this.trips.entries())
+                {
+                    if (trip[1].name == tripName)
+                        return resolve(trip[1]);
+                }
+                
+                return reject(`No trip with name ${tripName}`);
+            }, 2000)
+        });
+    }
+}
+class PriceService
+{
+    constructor()
+    {
+        this.trips = new Map();
+        this.trips.set('paris', 100);
+        this.trips.set('rio-de-janeiro', 800);
+    }
+    findPriceByTripId(tripId)
+    {
+        return new Promise((resolve, reject) =>
+        {
+            setTimeout(() =>
+            {
+                const trip = this.trips.get(tripId);
+
+                if (trip != undefined)
+                    return resolve(trip);
+                else
+                    return reject(`No price found for id ${tripId}`);
+            }, 2000)
+        });
+    }
+}
+
+let tripService = new TripService();
+let priceService = new PriceService();
+
+tripService.findByName('Paris').then(t => console.log('Trip found : ' + t));
+tripService.findByName('Toulouse').catch(r => console.log(r));
+tripService.findByName('Rio de Janeiro').then(t => priceService.findPriceByTripId(t.id).then(p => console.log('Price found : ' + p)));
+tripService.findByName('Nantes').then(t => priceService.findPriceByTripId(t.id).then(p => console.log('Price found : ' + p))).catch(r => console.log(r));
